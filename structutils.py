@@ -75,7 +75,7 @@ def get_packed_mp_ints(buf, count=1):
     ints = []
     for _ in range(count):
         length, = INT_FORMAT.unpack(buf[:4])
-        ints.append(buf[:4+length]
+        ints.append(buf[:4+length])
         buf = buf[4+length:]
 
     return ints

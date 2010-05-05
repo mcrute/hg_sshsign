@@ -10,11 +10,12 @@ Commands to sign and verify revisions with your
 ssh key.
 """
 
+from structutils import bytes_to_int
+from sshagent import SSHAgent
 
+key = open('/Users/mcrute/.ssh/id_rsa.ag.pub').read()
+key = key.split()[1].decode('base64')
 
-
-
-
-
-if __name__ == '__main__':
-    pass
+agent = SSHAgent()
+signature = agent.sign("Hello world!", key)
+print bytes_to_int(signature)

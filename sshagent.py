@@ -10,6 +10,7 @@ import os
 import socket
 import struct
 
+from structutils import int_to_bytes
 from structutils import pack_string, pack_int
 from structutils import unpack_int, unpack_string, unpack_mp_int
 
@@ -22,13 +23,14 @@ class SSHAgent(object):
     SSH2_AGENT_SIGN_RESPONSE = 14
     SSH2_AGENTC_SIGN_REQUEST = 13
 
-    def __init__(self, socket_path):
+    def __init__(self, socket_path=None):
         default_path = os.environ.get('SSH_AUTH_SOCK')
         socket_path = default_path if not socket_path else socket_path
 
         if not socket_path:
             raise ValueError("Could not find an ssh agent.")
 
+        self.socket_path = socket_path
         self.socket = None
 
     def connect(self):
@@ -43,16 +45,29 @@ class SSHAgent(object):
         to_send = ''.join([chr(SSHAgent.SSH2_AGENTC_SIGN_REQUEST),
                                key, data, flags])
         pkt_length = len(to_send)
-        packet = pack_int(pkg_length) + to_send
+        packet = pack_int(pkt_length) + to_send
 
         return packet
+
+    def sign(self, data, key):
+        if not self.socket:
+            self.connect()
+
+        packet = self._build_packet(data, key)
+
+        remaining = 0
+        while remaining < len(packet):
+            sent = self.socket.send(packet[remaining:])
+            remaining += sent
+
+        return self._parse_response()
 
     def _parse_response(self):
         response_length = unpack_int(self.socket.recv(4, socket.MSG_WAITALL))[0]
         if response_length == 1:
             raise ValueError("Agent failed")
 
-        response = auth_sock.recv(response_length, socket.MSG_WAITALL)
+        response = self.socket.recv(response_length, socket.MSG_WAITALL)
 
         status = ord(response[0])
         if status != SSHAgent.SSH2_AGENT_SIGN_RESPONSE:
@@ -62,14 +77,4 @@ class SSHAgent(object):
         _, remainder = unpack_string(remainder)
         response, _ = unpack_mp_int(remainder)
 
-        return response
-
-    def sign(self, data, key):
-        packet = self._build_packet(data, key)
-
-        remaining = 0
-        while remaining < len(packet):
-            sent = self.socket.send(packet[remaining:])
-            remaining += sent
-
-        return self._parse_response()
+        return int_to_bytes(response)
