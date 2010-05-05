@@ -75,6 +75,6 @@ class SSHAgent(object):
 
         _, remainder = unpack_int(response[1:])
         _, remainder = unpack_string(remainder)
-        response, _ = unpack_mp_int(remainder)
+        response, _ = unpack_string(remainder)
 
-        return int_to_bytes(response)
+        return response

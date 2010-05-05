@@ -24,7 +24,7 @@ def load_public_key(key):
 
     if ktype == 'ssh-rsa':
         e, n = get_packed_mp_ints(remainder, 2)
-        return hawt.new_pub_key((e, n))
+        return RSA.new_pub_key((e, n))
     elif ktype == 'ssh-dss':
         p, q, g, y = get_packed_mp_ints(remainder, 4)
         return DSA.set_params(p, q, g)
