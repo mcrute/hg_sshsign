@@ -14,6 +14,8 @@ Ponder this, bitches:
     http://svn.osafoundation.org/m2crypto/trunk/SWIG/_rsa.i
 """
 
+__version__ = "0.0.1dev"
+
 
 import keys
 from keymanifest import KeyManifest
