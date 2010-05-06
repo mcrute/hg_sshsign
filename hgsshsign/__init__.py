@@ -159,13 +159,15 @@ def sign(ui, repo, *revs, **opts):
         raise util.Abort(str(inst))
 
 
+NAME = 'sshsign'
 cmdtable = {
-    "sshsign":
+    NAME:
         (sign,
          [('l', 'local', None, _('make the signature local')),
           ('f', 'force', None, _('sign even if the sigfile is modified')),
-          ('', 'no-commit', None, _('do not commit the sigfile after signing')),
+          ('', 'no-commit', None,
+              _('do not commit the sigfile after signing')),
           ('m', 'message', '', _('commit message')),
          ] + commands.commitopts2,
-         _('hg sign [OPTION]... [REVISION]...')),
+         _('hg %s [OPTION]... [REVISION]...' % NAME)),
 }
