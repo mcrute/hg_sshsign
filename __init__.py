@@ -26,21 +26,31 @@ from mercurial import node as hgnode
 from mercurial.i18n import _
 
 
-def absolute_path(path):
-    path = os.path.expandvars(path)
-    return os.path.expanduser(path)
-
-
 class SSHAuthority(object):
 
     @classmethod
     def from_ui(cls, ui):
         public_key = absolute_path(ui.config("sshsign", "public_key"))
-        private_key = absolute_path(ui.config("sshsign", "private_key"))
-        manifest_file = absolute_path(ui.config("sshsign", "manifest_file"))
-
-        manifest = KeyManifest.from_file(manifest_file)
         public_key = keys.PublicKey.from_file(public_key)
+
+        manifest_file = ui.config("sshsign", "manifest_file")
+        if manifest_file:
+            manifest = KeyManifest.from_file(absolute_path(manifest_file))
+        else:
+            manifest = None
+            ui.write(_("No key manifest set. You will not be able to verify"
+                        " signatures.\n"))
+
+        private_key = ui.config("sshsign", "private_key", None)
+        agent_socket = os.environ.get(SSHAgent.AGENT_SOCK_NAME)
+        if private_key:
+            private_key = keys.load_private_key(absolute_path(private_key))
+        elif agent_socket:
+            private_key = SSHAgent(agent_socket, key=public_key.blob)
+        else:
+            raise util.Abort(_("No private key set and no agent running."))
+
+        return cls(public_key, manifest, private_key)
 
     def __init__(self, public_key, key_manifest=None, private_key=None):
         self.public_key = public_key
@@ -48,12 +58,15 @@ class SSHAuthority(object):
         self.private_key = private_key
 
     def verify(self, data, signature, whom):
-        key = self.key_manifest[whom] # XXX: More elegant error handling.
+        try:
+            key = self.key_manifest[whom] # XXX: More elegant error handling.
+        except KeyError:
+            raise util.Abort(_("No key found for %s" % whom))
+
         return key.verify(data, signature)
 
     def sign(self, data):
         return self.private_key.sign(data)
-
 
 
 def node2txt(repo, node, ver):
@@ -62,6 +75,11 @@ def node2txt(repo, node, ver):
         raise util.Abort(_("unknown signature version"))
 
     return "%s\n" % hgnode.hex(node)
+
+
+def absolute_path(path):
+    path = os.path.expandvars(path)
+    return os.path.expanduser(path)
 
 
 def sign(ui, repo, *revs, **opts):

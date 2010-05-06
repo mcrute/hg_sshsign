@@ -35,7 +35,7 @@ class PublicKey(object):
     def sign(self, data):
         return self.instance.sign(data)
 
-    @property
+    @classmethod
     def from_string(cls, key):
         """
         Loads an RFC 4716 formatted public key.
@@ -58,7 +58,7 @@ class PublicKey(object):
 
         return pubkey
 
-    @property
+    @classmethod
     def from_file(cls, filename):
         fp = open(filename)
         try:

@@ -25,7 +25,7 @@ class SSHAgent(object):
     SSH2_AGENT_SIGN_RESPONSE = 14
     SSH2_AGENTC_SIGN_REQUEST = 13
 
-    def __init__(self, socket_path=None):
+    def __init__(self, socket_path=None, key=None):
         default_path = os.environ.get(SSHAgent.AGENT_SOCK_NAME)
         socket_path = default_path if not socket_path else socket_path
 
@@ -33,6 +33,7 @@ class SSHAgent(object):
             raise ValueError("Could not find an ssh agent.")
 
         self.socket_path = socket_path
+        self.public_key = key
         self.socket = None
 
     def connect(self):
@@ -51,9 +52,14 @@ class SSHAgent(object):
 
         return packet
 
-    def sign(self, data, key):
+    def sign(self, data, key=None):
         if not self.socket:
             self.connect()
+
+        if not key and self.public_key:
+            key = self.public_key
+        else:
+            raise Exception("No key specified!")
 
         packet = self._build_packet(data, key)
 
