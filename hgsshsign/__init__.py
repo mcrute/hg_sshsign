@@ -6,9 +6,8 @@ SSH Key Signing
 @organization: American Greetings Interactive
 @date: May 03, 2010
 """
-
-
 import os
+import sys
 import binascii
 
 from hgsshsign._meta import __version__
@@ -26,7 +25,14 @@ class SSHAuthority(object):
         import hgsshsign.keys as keys
         from hgsshsign.keymanifest import KeyManifest
 
-        public_key = absolute_path(ui.config("sshsign", "public_key"))
+        try:
+            public_key = absolute_path(ui.config("sshsign", "public_key"))
+
+        except TypeError:
+            raise util.Abort(
+                _("You must define sshsign.public_key in your hgrc")), \
+                None, sys.exc_info()[2]
+
         public_key = keys.PublicKey.from_file(public_key)
 
         manifest_file = ui.config("sshsign", "manifest_file")
