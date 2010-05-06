@@ -154,7 +154,7 @@ def sign(ui, repo, *revs, **opts):
 
 
 cmdtable = {
-    "sign":
+    "sshsign":
         (sign,
          [('l', 'local', None, _('make the signature local')),
           ('f', 'force', None, _('sign even if the sigfile is modified')),
