@@ -40,7 +40,7 @@ class SSHAuthority(object):
         private_key = ui.config("sshsign", "private_key", None)
         agent_socket = os.environ.get(SSHAgent.AGENT_SOCK_NAME)
         if private_key:
-            private_key = keys.load_private_key(absolute_path(private_key))
+            private_key = keys.PrivateKey.from_file(absolute_path(private_key))
         elif agent_socket:
             private_key = SSHAgent(agent_socket, key=public_key.blob)
         else:
@@ -55,16 +55,14 @@ class SSHAuthority(object):
 
     def verify(self, data, signature, whom):
         try:
-            key = self.key_manifest[whom] # XXX: More elegant error handling.
+            key = self.key_manifest[whom]
         except KeyError:
             raise util.Abort(_("No key found for %s" % whom))
 
         return key.verify(data, signature)
 
     def sign(self, data):
-        import hgsshsign.keys as keys
-
-        return keys.sign_like_agent(data, self.private_key)
+        return self.private_key.sign(data)
 
 
 def node2txt(repo, node, ver):
