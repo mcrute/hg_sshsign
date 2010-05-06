@@ -5,27 +5,21 @@ SSH Key Signing
 @author: Mike Crute (mcrute@ag.com)
 @organization: American Greetings Interactive
 @date: May 03, 2010
-
-Commands to sign and verify revisions with your
-ssh key.
-
-Ponder this, bitches:
-    http://www.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/ssh-rsa.c
-    http://svn.osafoundation.org/m2crypto/trunk/SWIG/_rsa.i
 """
 
 __version__ = "0.0.1dev"
 
 
+import os
+import binascii
+
 import keys
 from keymanifest import KeyManifest
-from structutils import bytes_to_int
 from sshagent import SSHAgent
 
-import os, tempfile, binascii
+from mercurial.i18n import _
 from mercurial import util, commands, match
 from mercurial import node as hgnode
-from mercurial.i18n import _
 
 
 class SSHAuthority(object):
@@ -68,7 +62,7 @@ class SSHAuthority(object):
         return key.verify(data, signature)
 
     def sign(self, data):
-        return self.private_key.sign(data)
+        return keys.sign_like_agent(data, self.private_key)
 
 
 def node2txt(repo, node, ver):
@@ -167,4 +161,3 @@ cmdtable = {
          ] + commands.commitopts2,
          _('hg sign [OPTION]... [REVISION]...')),
 }
-
