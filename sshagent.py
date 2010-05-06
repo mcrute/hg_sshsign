@@ -20,11 +20,13 @@ class SSHAgent(object):
     SSH Agent communication protocol for signing only.
     """
 
+    AGENT_SOCK_NAME = 'SSH_AUTH_SOCK'
+
     SSH2_AGENT_SIGN_RESPONSE = 14
     SSH2_AGENTC_SIGN_REQUEST = 13
 
     def __init__(self, socket_path=None):
-        default_path = os.environ.get('SSH_AUTH_SOCK')
+        default_path = os.environ.get(SSHAgent.AGENT_SOCK_NAME)
         socket_path = default_path if not socket_path else socket_path
 
         if not socket_path:

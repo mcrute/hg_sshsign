@@ -7,7 +7,7 @@ Key Manifest
 @date: May 05, 2010
 """
 
-from keys import load_public_key
+from keys import PublicKey
 
 
 class KeyManifest(dict):
@@ -33,4 +33,4 @@ class KeyManifest(dict):
         return inst
 
     def __getitem__(self, key):
-        return load_public_key(dict.__getitem__(self, key))
+        return PublicKey.from_string(dict.__getitem__(self, key))
