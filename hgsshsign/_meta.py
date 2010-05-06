@@ -14,4 +14,6 @@ SETUP_ARGS = dict(
     install_requires=[
         "M2Crypto",
     ],
+    test_suite='hgsshsign.tests.itest_all',
+    zip_safe=True,
 )
