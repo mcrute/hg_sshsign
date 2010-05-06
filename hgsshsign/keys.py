@@ -69,22 +69,29 @@ class PublicKey(object):
             fp.close()
 
 
-def load_private_key(filename):
-    fp = open(filename)
-    try:
-        first_line = fp.readline()
-    finally:
-        fp.close()
+class PrivateKey(object):
 
-    type = DSA if 'DSA' in first_line else RSA
-    return type.load_key(filename)
+    def __init__(self, instance):
+        self.instance = instance
 
+    @classmethod
+    def from_file(cls, filename):
+        fp = open(filename)
+        try:
+            first_line = fp.readline()
+        finally:
+            fp.close()
 
-def sign_like_agent(data, key):
-    """
-    Emulates the signing behavior of an ssh key agent.
-    """
-    digest = MessageDigest('sha1')
-    digest.update(data)
-    my_data = digest.final()
-    return key.sign(data)
+        type_ = DSA if 'DSA' in first_line else RSA
+        instance = type_.load_key(filename)
+
+        return cls(instance)
+
+    def sign(self, data):
+        """
+        Emulates the signing behavior of an ssh key agent.
+        """
+        digest = MessageDigest('sha1')
+        digest.update(data)
+        my_data = digest.final()
+        return self.instance.sign(data)
