@@ -1,15 +1,15 @@
+#!/usr/bin/env python
+# vim:filetype=python:fileencoding=utf-8
+import sys
+
 from setuptools import setup
-from hgsshsign import __version__
+from hgsshsign._meta import SETUP_ARGS
 
 
-setup(
-    name="hg-sshsign",
-    description="ssh signing for mercurial commits",
-    author="Mike Crute",
-    author_email="mcrute@gmail.com",
-    url="http://code.google.com/p/hg-sshsign",
-    license="Apache 2.0",
-    version=__version__,
-    install_requires=[
-        "M2Crypto",
-    ])
+def main():
+    setup(**SETUP_ARGS)
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

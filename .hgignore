@@ -1,2 +1,1 @@
-syntax:glob
-*.pyc
+^.*\.(pyc|egg-info)$

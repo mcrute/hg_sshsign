@@ -1,4 +1,4 @@
-# vim: set filencoding=utf8
+# vim: set filencoding=utf-8
 """
 SSH Key Signing
 
@@ -7,15 +7,12 @@ SSH Key Signing
 @date: May 03, 2010
 """
 
-__version__ = "0.0.1dev"
-
 
 import os
 import binascii
 
-import keys
-from keymanifest import KeyManifest
-from sshagent import SSHAgent
+from hgsshsign._meta import __version__
+from hgsshsign.sshagent import SSHAgent
 
 from mercurial.i18n import _
 from mercurial import util, commands, match
@@ -26,6 +23,9 @@ class SSHAuthority(object):
 
     @classmethod
     def from_ui(cls, ui):
+        import hgsshsign.keys as keys
+        from hgsshsign.keymanifest import KeyManifest
+
         public_key = absolute_path(ui.config("sshsign", "public_key"))
         public_key = keys.PublicKey.from_file(public_key)
 
@@ -62,6 +62,8 @@ class SSHAuthority(object):
         return key.verify(data, signature)
 
     def sign(self, data):
+        import hgsshsign.keys as keys
+
         return keys.sign_like_agent(data, self.private_key)
 
 

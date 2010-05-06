@@ -8,10 +8,12 @@ Key Loader Functions
 """
 
 import os
+
 from M2Crypto import RSA, DSA
 from M2Crypto.EVP import MessageDigest
 from M2Crypto.RSA import RSAError
 from M2Crypto.DSA import DSAError
+
 from structutils import unpack_string, get_packed_mp_ints, int_to_bytes
 
 
